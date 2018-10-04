@@ -6,7 +6,7 @@ import java.io.IOException;
  * A generic inteface used for converting a byte stream to types used in a
  * 3ds file.
  *
- * @author Kjetil Østerås
+ * @author Kjetil Osteras
  */
 public interface TypeReader {
     short getShort() throws IOException;

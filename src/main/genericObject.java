@@ -15,12 +15,13 @@ public class genericObject
     float minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
     float[] vertices;
     String name = "noName";
+    int scale = 1;
     
-    genericObject(float[] vertices, String name)
+    genericObject(float[] vertices, String name, int scale)
     {
 	this.vertices = vertices;
 	this.name = name;
-	int scale = 10000;
+	this.scale = scale;
 	int count = 0;
 	
 	for (int v = 0; v < vertices.length; v++)

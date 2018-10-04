@@ -6,7 +6,7 @@ import java.io.IOException;
  * This parser understands the layout of the 3ds file and is
  * able to construct a Model from a reader.
  *
- * @author Kjetil Østerås
+ * @author Kjetil Osteras
  */
 public class Parser {
 

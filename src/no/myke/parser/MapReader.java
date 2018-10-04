@@ -12,7 +12,7 @@ import java.nio.channels.ReadableByteChannel;
  * performs best with +8KB models. It will use the same amount of memory as
  * the size of the model so that is the tradeof from being fast.
  *
- * @author Kjetil Østerås
+ * @author Kjetil Osteras
  */
 public class MapReader implements TypeReader {
 

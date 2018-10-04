@@ -12,9 +12,9 @@ package main;
  */
 public class Opening extends genericObject
 {
-    public Opening(float[] vertices, String name)
+    public Opening(float[] vertices, String name, int scale)
     {
 	//Initialize using constructor in extended class genericObject
-	super(vertices, name);
+	super(vertices, name, scale);
     }
 }

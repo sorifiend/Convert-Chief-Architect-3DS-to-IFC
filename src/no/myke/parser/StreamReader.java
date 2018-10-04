@@ -11,7 +11,7 @@ import java.io.InputStream;
  * is included since some api's like the android asset api provides only
  * InputStream sources.
  *
- * @author Kjetil Østerås
+ * @author Kjetil Osteras
  */
 public class StreamReader implements TypeReader {
 
