@@ -4,7 +4,9 @@ Convert a Chief Architect 3DS model to BIM/IFC format.
 3DS parser cloned from @kjetilos: https://github.com/kjetilos/3ds-parser
 
 
-**Status October 4th 2018:**
+---
+Status October 4th 2018:
+---
 
 Non working state - Object exploration still in progress
 
