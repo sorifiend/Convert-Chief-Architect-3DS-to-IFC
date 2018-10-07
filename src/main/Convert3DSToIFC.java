@@ -19,6 +19,7 @@ public class Convert3DSToIFC
     private static final File file = new File("Plan2.3ds");
     static JobModel jobModel = new JobModel(null);
     static int scale = 10;
+    static int wallThickness = 90; //mm
     
     /**
      * @param args the command line arguments
@@ -32,7 +33,7 @@ public class Convert3DSToIFC
 	    Model model = ModelLoader.load3dModel(file);
 	    for (int o = 0; o < model.objects.size(); o++)
 	    {
-		//
+		//Get object name
 		String objectName = model.objects.get(o).getName();
 		System.out.println("Name: "+ objectName);
 		
@@ -58,7 +59,11 @@ public class Convert3DSToIFC
 	}
 	
 	//Walls: Remove cladding and linings so that only the raw size will be used in the IFC model.
-	
+	//We expect a wall centre of 90mm wide, so prune anything with a different width.
+	for (Wall wall : jobModel.walls)
+	{
+	    
+	}
 	//Openings: Remove complex geometry, and use simple boxes that will be recognised as openings in software importing the IFC model.
 	
 	//Find and fix collisions
