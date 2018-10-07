@@ -21,12 +21,18 @@ public class genericObject
     {
 	this.vertices = vertices;
 	this.name = name;
-	this.scale = scale;
 	int count = 0;
 	
+	//Adjust with scale
+	for (int v = 0; v < vertices.length; v++)
+	{  
+	    vertices[v] = vertices[v] * scale;
+	}
+	
+	//Find extents
 	for (int v = 0; v < vertices.length; v++)
 	{   
-	    float value = vertices[v] * scale;
+	    float value = vertices[v];
 	    count ++;
 	    if(count == 1)
 	    {
