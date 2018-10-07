@@ -12,7 +12,6 @@ public class Parser {
 
     private Model model;
     private TypeReader reader;
-    private Logger logger;
     private ModelObject currentObject;
 
     public Parser(TypeReader reader) {
@@ -167,14 +166,8 @@ public class Parser {
         v[2] = reader.getFloat();
     }
 
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
     private void log(String format, Object... args) {
-        if (logger != null) {
-            logger.log(String.format(format, args));
-        }
+        System.out.println(String.format(format, args));
     }
 
 }
