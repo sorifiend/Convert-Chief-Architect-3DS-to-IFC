@@ -13,21 +13,21 @@ import java.nio.channels.FileChannel;
  * @author Kjetil Osteras
  */
 public class ModelLoader {
-    public static Model load3dModel(File file) throws ParserException {
+    public static Model load3dModel(File file, float scale) throws ParserException {
         try {
             FileInputStream stream = new FileInputStream(file);
-            return load3dModel(stream);
+            return load3dModel(stream, scale);
         } catch (FileNotFoundException e) {
             throw new ParserException("Unable to find file " + file.getAbsolutePath(), e);
         }
     }
 
-    public static Model load3dModel(FileInputStream stream) throws ParserException {
+    public static Model load3dModel(FileInputStream stream, float scale) throws ParserException {
         FileChannel channel = null;
         try {
             channel = stream.getChannel();
             MapReader reader = new MapReader(channel);
-            Parser parser = new Parser(reader);
+            Parser parser = new Parser(reader, scale);
             return parser.parseFile();
         } catch (IOException e) {
             throw new ParserException(e);
@@ -42,10 +42,10 @@ public class ModelLoader {
         }
     }
 
-    public static Model load3dModel(InputStream stream) throws ParserException {
+    public static Model load3dModel(InputStream stream, float scale) throws ParserException {
         try {
             StreamReader reader = new StreamReader(stream);
-            Parser parser = new Parser(reader);
+            Parser parser = new Parser(reader, scale);
             return parser.parseFile();
         } finally {
             try {

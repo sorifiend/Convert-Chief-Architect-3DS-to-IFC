@@ -7,9 +7,11 @@
 package main;
 
 import java.io.File;
+import java.util.ArrayList;
 import no.myke.parser.Model;
 import no.myke.parser.ModelLoader;
 import no.myke.parser.ParserException;
+import no.myke.parser.Vector;
 /**
  *
  * @author j.simpson
@@ -18,8 +20,9 @@ public class Convert3DSToIFC
 {
     private static final File file = new File("Plan2.3ds");
     static JobModel jobModel = new JobModel(null);
-    static int scale = 10;
+    static float scale = 10;
     static int wallThickness = 90; //mm
+    static double tolerance = 0.01;
     
     /**
      * @param args the command line arguments
@@ -30,26 +33,26 @@ public class Convert3DSToIFC
 	
 	try
 	{
-	    Model model = ModelLoader.load3dModel(file);
+	    Model model = ModelLoader.load3dModel(file, scale);
 	    for (int o = 0; o < model.objects.size(); o++)
 	    {
 		//Get object name
 		String objectName = model.objects.get(o).getName();
-		System.out.println("Name: "+ objectName);
+		//System.out.println("Name: "+ objectName);
 		
 		//Create walls
 		if (model.objects.get(o).getName().startsWith("Wall") && (objectName.length() == 4 || objectName.charAt(4) != ' '))
 		{
-		    jobModel.addWall(new Wall(model.objects.get(o).vertices, objectName, scale));
+		    jobModel.addWall(new Wall(model.objects.get(o)));
 		}
 		//create openings
 		if (model.objects.get(o).getName().startsWith("Window"))
 		{
-		    jobModel.addWindow(new Opening(model.objects.get(o).vertices, objectName, scale));
+		    jobModel.addWindow(new Opening(model.objects.get(o)));
 		}
 		if (model.objects.get(o).getName().startsWith("Door"))
 		{
-		    jobModel.addWindow(new Opening(model.objects.get(o).vertices, objectName, scale));
+		    jobModel.addWindow(new Opening(model.objects.get(o)));
 		}
 	    }
 	}
@@ -62,7 +65,57 @@ public class Convert3DSToIFC
 	//We expect a wall centre of 90mm wide, so prune anything with a different width.
 	for (Wall wall : jobModel.walls)
 	{
+	    System.out.println(wall.name+": "+wall.getFaceList().size());
+	    //Find real wall bounds
+	    //Compare every bound with every other bound to find a match with wall thickness
+	    float side1 = 0, side2 = 0;
+	    String vectorType = Vector.TYPE_NA;
+	    for (int i = 0; i < wall.getVectorList().length; i++)
+	    {
+		for (int j = i+1; j < wall.getVectorList().length; j++)
+		{
+		    if (CloseEnough(90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()) || CloseEnough(-90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()))
+		    {
+			side1 = wall.getVectorList()[i].X();
+			side2 = wall.getVectorList()[j].X();
+			if (side1 > side2)
+			{
+			    side1 = wall.getVectorList()[j].X();
+			    side2 = wall.getVectorList()[i].X();
+			}
+			vectorType = Vector.TYPE_X;
+			break;
+		    }
+		}
+	    }
+	    if (!vectorType.equals(Vector.TYPE_X))
+	    {
+		for (int i = 0; i < wall.getVectorList().length; i++)
+		{
+		    for (int j = i + 1; j < wall.getVectorList().length; j++)
+		    {
+			if (CloseEnough(90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()) || CloseEnough(-90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()))
+			{
+			    side1 = wall.getVectorList()[i].Y();
+			    side2 = wall.getVectorList()[j].Y();
+			    if (side1 > side2)
+			    {
+				side1 = wall.getVectorList()[j].Y();
+				side2 = wall.getVectorList()[i].Y();
+			    }
+			    vectorType = Vector.TYPE_Y;
+			    break;
+			}
+		    }
+		}
+	    }
+	    ArrayList<Float> arrayList = new ArrayList<>();
+	    arrayList.add(side1);
+	    arrayList.add(side2);
+	    wall.pruneVertices(vectorType, arrayList);
 	    
+	    System.out.println(wall.name+": "+wall.getFaceList().size());
+		    
 	}
 	//Openings: Remove complex geometry, and use simple boxes that will be recognised as openings in software importing the IFC model.
 	
@@ -74,5 +127,10 @@ public class Convert3DSToIFC
 	
 	//add components to IFC
     }
-    
+
+    //Check if values are equal or within tolerance
+    public static boolean CloseEnough(double value1, double value2)
+    {
+	return Math.abs(value1 - value2) <= tolerance;
+    }
 }

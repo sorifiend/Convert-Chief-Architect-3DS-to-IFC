@@ -6,15 +6,16 @@
 
 package main;
 
+import no.myke.parser.ModelObject;
 /**
  *
  * @author j.simpson
  */
 public class Opening extends genericObject
 {
-    public Opening(float[] vertices, String name, int scale)
+    public Opening(ModelObject model)
     {
 	//Initialize using constructor in extended class genericObject
-	super(vertices, name, scale);
+	super(model);
     }
 }

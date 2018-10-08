@@ -1,11 +1,12 @@
 package no.myke.parser;
 
+import java.util.ArrayList;
 /**
  *
  */
 public class ModelObject {
     private String name;
-    public float[] vertices;
+    public Vector[] vectors;
     public short[] polygons;
     public float[] textureCoordinates;
 

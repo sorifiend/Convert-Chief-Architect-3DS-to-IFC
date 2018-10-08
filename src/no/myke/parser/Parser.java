@@ -1,6 +1,7 @@
 package no.myke.parser;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * This parser understands the layout of the 3ds file and is
@@ -11,11 +12,12 @@ import java.io.IOException;
 public class Parser {
 
     private Model model;
-    private TypeReader reader;
+    private final TypeReader reader;
     private ModelObject currentObject;
-
-    public Parser(TypeReader reader) {
+    private final float scale;
+    public Parser(TypeReader reader, float scale) {
         this.reader = reader;
+	this.scale = scale;
     }
 
     public Model parseFile() throws ParserException {
@@ -40,30 +42,31 @@ public class Parser {
 
     private void parseChunk(short type, int size) throws IOException {
         switch (type) {
-        case 0x0002:
+        case 0x0002: //M3D Version
             parseVersionChunk();
             break;
-        case 0x3d3d:
+        case 0x3d3d: //Start of object mesh data.
             break;
         case 0x4000:
-            parseObjectChunk();
+            parseObjectChunk(); //first item of Subchunk 4000 is an ASCIIZ string of the objects name. Remember an object can be a mesh, a light or a camera. 
             break;
         case 0x4100:
+	    parseTriangularMesh(); //Header for Triangular Polygon Object (Just an identifier, no actual information)
             break;
         case 0x4110:
-            parseVerticesList();
+            parseVerticesList(); //Count of verticus, followed by X,Y,Z co-ords
             break;
         case 0x4120:
-            parseFacesDescription();
+            parseFacesDescription(); //Faces Description / Point List
             break;
         case 0x4140:
-            parseMappingCoordinates();
+            parseMappingCoordinates(); //Mapping Coordinates List
             break;
         case 0x4160:
-            parseLocalCoordinateSystem();
+            parseLocalCoordinateSystem(); //Local Coordinates System / Translation Matrix
             break;
         case 0x4d4d:
-            parseMainChunk();
+            parseMainChunk(); //A 3ds file has the Primary chunk ID 0x4D4D. This is always the first chunk of the file. With in the primary chunk are the main chunks.
             break;
         case (short)0xafff: // Material block
             break;
@@ -104,25 +107,60 @@ public class Parser {
         currentObject = model.newModelObject(name);
     }
 
-    private void parseVerticesList() throws IOException {
-        short numVertices = reader.getShort();
-        float[] vertices = new float[numVertices * 3];
-        for (int i=0; i<vertices.length; i++) {
-            vertices[i] = reader.getFloat();
-        }
+    private void parseTriangularMesh() throws IOException {
+        log("Found Mesh Header");
+    }
 
-        currentObject.vertices = vertices;
+    private void parseVerticesList() throws IOException {
+	//byte range: 0-1
+	//Size: 2 	
+	//Type: short int 	
+	//Description: Total vertices in object
+        short numVertices = reader.getShort();
+	//vertices always come in multiples of 3 (X,Y,Z) co-ordinates
+        float[] vertices = new float[numVertices * 3];
+	
+	//byte range: 2-5, 6-9, 10-13
+	//Size: 4 (each)
+	//Type: float (each)
+	//Description: X, Y and Z values as a float
+	//These 12 bytes are repeated for however many vertices are in the object, with the next 3 (X,Y,Z) being in the byte range 14-25.
+        for (int i=0; i<vertices.length; i++) {
+            vertices[i] = reader.getFloat() * scale;
+        }
+	
+	//Create vectors from groups of 3 vertices (X, Y, Z).
+	//Use the values from 0x4120 (Faces Description / Point List) to find faces.
+	Vector[] vectors = new Vector[numVertices];
+	for (int i = 0; i < numVertices; i++)
+	{
+	    //Create vector with 3 points
+	    vectors[i] = new Vector(vertices[i*3], vertices[i*3 + 1], vertices[i*3 + 2]);
+	}
+	currentObject.vectors = vectors;
         log("Found %d vertices", numVertices);
     }
 
     private void parseFacesDescription() throws IOException {
+	//byte range: 0-1
+	//Size: 2 	
+	//Type: short int 	
+	//Description: Total polygons in object - numFaces
         short numFaces = reader.getShort();
         short[] faces = new short[numFaces * 3];
+	
+	//byte range: 2-3, 4-5, 6-7
+	//Size: 2 (each)
+	//Type: short int (each)
+	//Description: point1, point2 and point3 values as a short.
+	//These points refer to the corresponding vertex of the triangular polygon from the vertex list.
+	//Points are organized in a clock-wise order.
+	//Repeats 'numFaces' times for each polygon.
         for (int i=0; i<numFaces; i++) {
             faces[i*3] = reader.getShort();
             faces[i*3 + 1] = reader.getShort();
             faces[i*3 + 2] = reader.getShort();
-            reader.getShort(); // Discard face flag
+	    reader.getShort(); // Discard face flag
         }
         log("Found %d faces", numFaces);
         currentObject.polygons = faces;
