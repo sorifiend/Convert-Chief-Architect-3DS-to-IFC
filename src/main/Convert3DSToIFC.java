@@ -65,11 +65,10 @@ public class Convert3DSToIFC
 	//We expect a wall centre of 90mm wide, so prune anything with a different width.
 	for (Wall wall : jobModel.walls)
 	{
-	    System.out.println(wall.name+": "+wall.getFaceList().size());
-	    //Find real wall bounds
+	    //Find real wall bounds in X plane
 	    //Compare every bound with every other bound to find a match with wall thickness
-	    float side1 = 0, side2 = 0;
 	    String vectorType = Vector.TYPE_NA;
+	    float side1 = 0, side2 = 0;
 	    for (int i = 0; i < wall.getVectorList().length; i++)
 	    {
 		for (int j = i+1; j < wall.getVectorList().length; j++)
@@ -86,36 +85,33 @@ public class Convert3DSToIFC
 			vectorType = Vector.TYPE_X;
 			break;
 		    }
-		}
-	    }
-	    if (!vectorType.equals(Vector.TYPE_X))
-	    {
-		for (int i = 0; i < wall.getVectorList().length; i++)
-		{
-		    for (int j = i + 1; j < wall.getVectorList().length; j++)
+		    if (CloseEnough(90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()) || CloseEnough(-90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()))
 		    {
-			if (CloseEnough(90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()) || CloseEnough(-90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()))
+			side1 = wall.getVectorList()[i].Y();
+			side2 = wall.getVectorList()[j].Y();
+			if (side1 > side2)
 			{
-			    side1 = wall.getVectorList()[i].Y();
-			    side2 = wall.getVectorList()[j].Y();
-			    if (side1 > side2)
-			    {
-				side1 = wall.getVectorList()[j].Y();
-				side2 = wall.getVectorList()[i].Y();
-			    }
-			    vectorType = Vector.TYPE_Y;
-			    break;
+			    side1 = wall.getVectorList()[j].Y();
+			    side2 = wall.getVectorList()[i].Y();
 			}
+			vectorType = Vector.TYPE_Y;
+			break;
 		    }
 		}
+		if (vectorType.equals(Vector.TYPE_NA) == false) break;
 	    }
+	    
 	    ArrayList<Float> arrayList = new ArrayList<>();
 	    arrayList.add(side1);
 	    arrayList.add(side2);
+	    
+	    System.out.println(wall.name+": "+vectorType+" "+side1+" "+side2);
+	    System.out.println(wall.name+": "+wall.getFaceList().size());
+	    	    
 	    wall.pruneVertices(vectorType, arrayList);
 	    
 	    System.out.println(wall.name+": "+wall.getFaceList().size());
-		    
+	    System.out.println("  Extents X,Y,Z: "+wall.getMinX()+"|"+wall.getMaxX()+" "+wall.getMinY()+"|"+wall.getMaxY());
 	}
 	//Openings: Remove complex geometry, and use simple boxes that will be recognised as openings in software importing the IFC model.
 	
@@ -128,6 +124,21 @@ public class Convert3DSToIFC
 	//add components to IFC
     }
 
+//    public static ArrayList<Float> findCoreWallThickness(Wall wall)
+//    {
+//	ArrayList<Float> arrayList = new ArrayList<>();
+//	
+//	
+//	
+//	
+//	=;
+//	
+//	
+//	
+//	
+//	return arrayList;
+//    }
+    
     //Check if values are equal or within tolerance
     public static boolean CloseEnough(double value1, double value2)
     {
