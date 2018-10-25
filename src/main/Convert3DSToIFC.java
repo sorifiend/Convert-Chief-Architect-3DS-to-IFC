@@ -22,7 +22,7 @@ public class Convert3DSToIFC
     static JobModel jobModel = new JobModel(null);
     static float scale = 10;
     static int wallThickness = 90; //mm
-    static double tolerance = 0.01;
+    static double tolerance = 0.001;
     
     /**
      * @param args the command line arguments
@@ -65,54 +65,62 @@ public class Convert3DSToIFC
 	//We expect a wall centre of 90mm wide, so prune anything with a different width.
 	for (Wall wall : jobModel.walls)
 	{
-	    //Find real wall bounds in X plane
-	    //Compare every bound with every other bound to find a match with wall thickness
-	    String vectorType = Vector.TYPE_NA;
-	    float side1 = 0, side2 = 0;
-	    for (int i = 0; i < wall.getVectorList().length; i++)
-	    {
-		for (int j = i+1; j < wall.getVectorList().length; j++)
-		{
-		    if (CloseEnough(90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()) || CloseEnough(-90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()))
-		    {
-			side1 = wall.getVectorList()[i].X();
-			side2 = wall.getVectorList()[j].X();
-			if (side1 > side2)
-			{
-			    side1 = wall.getVectorList()[j].X();
-			    side2 = wall.getVectorList()[i].X();
-			}
-			vectorType = Vector.TYPE_X;
-			break;
-		    }
-		    if (CloseEnough(90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()) || CloseEnough(-90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()))
-		    {
-			side1 = wall.getVectorList()[i].Y();
-			side2 = wall.getVectorList()[j].Y();
-			if (side1 > side2)
-			{
-			    side1 = wall.getVectorList()[j].Y();
-			    side2 = wall.getVectorList()[i].Y();
-			}
-			vectorType = Vector.TYPE_Y;
-			break;
-		    }
-		}
-		if (vectorType.equals(Vector.TYPE_NA) == false) break;
-	    }
-	    
-	    ArrayList<Float> arrayList = new ArrayList<>();
-	    arrayList.add(side1);
-	    arrayList.add(side2);
-	    
-	    System.out.println(wall.name+": "+vectorType+" "+side1+" "+side2);
 	    System.out.println(wall.name+": "+wall.getFaceList().size());
-	    	    
-	    wall.pruneVertices(vectorType, arrayList);
+	    
+	    //Prune unneeded faces:
+	    ArrayList materialsToKeep = new ArrayList<String>();
+	    materialsToKeep.add("Zog frame");
+	    wall.pruneMaterials(materialsToKeep);
+	    
+//	    //Find real wall bounds
+//	    //Compare every bound with every other bound to find a match with wall thickness
+//	    String vectorType = Vector.TYPE_NA;
+//	    float side1 = 0, side2 = 0;
+//	    for (int i = 0; i < wall.getVectorList().length; i++)
+//	    {
+//		for (int j = i+1; j < wall.getVectorList().length; j++)
+//		{
+//		    if (CloseEnough(90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()) || CloseEnough(-90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()))
+//		    {
+//			side1 = wall.getVectorList()[i].X();
+//			side2 = wall.getVectorList()[j].X();
+//			if (side1 > side2)
+//			{
+//			    side1 = wall.getVectorList()[j].X();
+//			    side2 = wall.getVectorList()[i].X();
+//			}
+//			vectorType = Vector.TYPE_X;
+//			break;
+//		    }
+//		    if (CloseEnough(90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()) || CloseEnough(-90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()))
+//		    {
+//			side1 = wall.getVectorList()[i].Y();
+//			side2 = wall.getVectorList()[j].Y();
+//			if (side1 > side2)
+//			{
+//			    side1 = wall.getVectorList()[j].Y();
+//			    side2 = wall.getVectorList()[i].Y();
+//			}
+//			vectorType = Vector.TYPE_Y;
+//			break;
+//		    }
+//		}
+//		if (vectorType.equals(Vector.TYPE_NA) == false) break;
+//	    }
+//	    
+//	    ArrayList<Float> arrayList = new ArrayList<>();
+//	    arrayList.add(side1);
+//	    arrayList.add(side2);
+//	    
+//	    System.out.println(wall.name+": "+vectorType+" "+side1+" "+side2);
+//	    System.out.println(wall.name+": "+wall.getFaceList().size());
+//	    	    
+//	    wall.pruneVertices(vectorType, arrayList);
 	    
 	    System.out.println(wall.name+": "+wall.getFaceList().size());
-	    System.out.println("  Extents X,Y,Z: "+wall.getMinX()+"|"+wall.getMaxX()+" "+wall.getMinY()+"|"+wall.getMaxY());
+	    //System.out.println("  Extents X,Y,Z: "+wall.getMinX()+"|"+wall.getMaxX()+" "+wall.getMinY()+"|"+wall.getMaxY());
 	}
+	DXF_Render_Testing.DXFwrite("output.dxf", jobModel);
 	//Openings: Remove complex geometry, and use simple boxes that will be recognised as openings in software importing the IFC model.
 	
 	//Find and fix collisions

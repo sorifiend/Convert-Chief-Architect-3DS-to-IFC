@@ -59,6 +59,9 @@ public class Parser {
         case 0x4120:
             parseFacesDescription(); //Faces Description / Point List
             break;
+        case 0x4130:
+            parseFaceMaterial(); //Face Material
+            break;
         case 0x4140:
             parseMappingCoordinates(); //Mapping Coordinates List
             break;
@@ -164,6 +167,16 @@ public class Parser {
         }
         log("Found %d faces", numFaces);
         currentObject.polygons = faces;
+    }
+    
+    private void parseFaceMaterial() throws IOException {
+	String name = reader.readString();
+	short n_faces = reader.getShort();
+	log("%d faces with material %s", n_faces, name);
+	for(short i = 0 ; i < n_faces ; i++)
+	{
+	    currentObject.materialType.put(reader.getShort(), name);
+	}
     }
 
     private void parseLocalCoordinateSystem() throws IOException {

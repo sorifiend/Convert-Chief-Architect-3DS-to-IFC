@@ -14,11 +14,18 @@ import no.myke.parser.Vector;
 public class Face
 {
     private Vector point1, point2, point3;
+    private String material = null;
     Face(Vector point1, Vector point2, Vector point3)
+    {
+	this(point1, point2, point3, null);
+    }
+    
+    Face(Vector point1, Vector point2, Vector point3, String material)
     {
 	this.point1 = point1;
 	this.point2 = point2;
 	this.point3 = point3;
+	this.material = material;
     }
 
     public Vector Point1()
@@ -34,6 +41,11 @@ public class Face
     public Vector Point3()
     {
 	return point3;
+    }
+    
+    public String Material()
+    {
+	return material;
     }
     
     public Vector[] getVectors(){return new Vector[]{point1, point2, point3};}

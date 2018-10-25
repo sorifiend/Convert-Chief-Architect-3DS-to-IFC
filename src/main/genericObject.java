@@ -33,8 +33,10 @@ public class genericObject
 	    Vector point1 = model.vectors[model.polygons[i]];
 	    Vector point2 = model.vectors[model.polygons[i + 1]];
 	    Vector point3 = model.vectors[model.polygons[i + 2]];
+	    //Get material name
+	    String material = model.materialType.get((short)(i/3)).toString();
 
-	    meshList.add(new Face(point1, point2, point3));
+	    meshList.add(new Face(point1, point2, point3, material));
 	}
 	setExtents();
     }
@@ -43,7 +45,6 @@ public class genericObject
     //vectorType = X, Y, Z
     public void pruneVertices(String vectorType, ArrayList<Float> verticesToKeep)
     {
-	System.out.println(this.name+": "+meshList.size());
 	//Form new list of vectors containing the verticesToKeep
 	ArrayList<Face> newMeshList = new ArrayList<>();
 	for (Face face : meshList)
@@ -124,6 +125,25 @@ public class genericObject
 		connectionCountPoint3 >= 2)
 	    {
 		newMeshList.add(meshList.get(m));
+	    }
+	}
+	
+	//Set face list to new list that contains core faces only 
+	meshList = newMeshList;
+	
+	//Update extents
+	setExtents();
+    }
+    
+    public void pruneMaterials(ArrayList<String> materialsToKeep)
+    {
+	//Form new list of only the materials to keep
+	ArrayList<Face> newMeshList = new ArrayList<>();
+	for (Face face : meshList)
+	{
+	    if(materialsToKeep.contains(face.Material()))
+	    {
+		newMeshList.add(face);
 	    }
 	}
 	
