@@ -12,7 +12,7 @@ package no.myke.parser;
  */
 public class Vector
 {
-    public static final String TYPE_X = "X", TYPE_Y = "Y", TYPE_Z = "Z", TYPE_NA = "NA";
+//    public static final String TYPE_X = "X", TYPE_Y = "Y", TYPE_Z = "Z", TYPE_NA = "NA";
     float x, y, z;
     
     Vector (float x, float y, float z)
@@ -36,8 +36,8 @@ public class Vector
 	return z;
     }
     
-    public String getID()
-    {
-	return x+"|"+y+"|"+z;
-    }
+//    public String getID()
+//    {
+//	return x+"|"+y+"|"+z;
+//    }
 }

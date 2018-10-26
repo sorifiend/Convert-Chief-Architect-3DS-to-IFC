@@ -1,7 +1,6 @@
 package no.myke.parser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * This parser understands the layout of the 3ds file and is

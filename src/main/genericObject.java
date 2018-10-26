@@ -34,106 +34,106 @@ public class genericObject
 	    Vector point2 = model.vectors[model.polygons[i + 1]];
 	    Vector point3 = model.vectors[model.polygons[i + 2]];
 	    //Get material name
-	    String material = model.materialType.get((short)(i/3)).toString();
+	    String material = model.materialType.get((short)(i/3));
 
 	    meshList.add(new Face(point1, point2, point3, material));
 	}
 	setExtents();
     }
     
-    //Remove all vertices that are not in the list
-    //vectorType = X, Y, Z
-    public void pruneVertices(String vectorType, ArrayList<Float> verticesToKeep)
-    {
-	//Form new list of vectors containing the verticesToKeep
-	ArrayList<Face> newMeshList = new ArrayList<>();
-	for (Face face : meshList)
-	{
-	    Boolean withinBoundsOfWall = true;
-	    for (Vector vector : face.getVectors())
-	    {
-		switch (vectorType)
-		{
-		    case Vector.TYPE_X:
-			if (verticesToKeep.contains(vector.X()) == false)
-			{
-			    withinBoundsOfWall = false;
-			}
-			break;
-		    case Vector.TYPE_Y:
-			if (verticesToKeep.contains(vector.Y()) == false)
-			{
-			    withinBoundsOfWall = false;
-			}
-			break;
-		    case Vector.TYPE_Z:
-			if (verticesToKeep.contains(vector.Z()) == false)
-			{
-			    withinBoundsOfWall = false;
-			}
-			break;
-		    default:
-			break;
-		}
-		if (withinBoundsOfWall == false) break;
-	    }
-	    if (withinBoundsOfWall) newMeshList.add(face);
-	}
-	//Set face list to new list that contains the verticesToKeep
-	meshList = newMeshList;
-	//Reset list to reuse
-	newMeshList = new ArrayList<>();
-	
-	System.out.println(this.name+": "+meshList.size());
-	//Prune isolated faces. Only keep faces that are connected to 2 other unique faces.
-	for (int m = 0; m < meshList.size(); m++)
-	{
-	    Vector point1 = meshList.get(m).Point1();
-	    Vector point2 = meshList.get(m).Point2();
-	    Vector point3 = meshList.get(m).Point3();
-	    int connectionCountPoint1 = 0;
-	    int connectionCountPoint2 = 0;
-	    int connectionCountPoint3 = 0;
-	    for (int i = 0; i < meshList.size(); i++)
-	    {
-		//dont compare with self
-		if (i != m)
-		{
-		    Vector[] vectorsToCompare = meshList.get(i).getVectors();
-		    for (int j = 0; j < vectorsToCompare.length; j++)
-		    {
-			//Compare ID inner points with ID of point1/2/3
-			//Incriment count if match found. 2 or more matches means it is a valid connected point
-			String ID = vectorsToCompare[j].getID();
-			if (ID.equals(point1.getID()))
-			{
-			    connectionCountPoint1++;
-			}
-			if (ID.equals(point2.getID()))
-			{
-			    connectionCountPoint2++;
-			}
-			if (ID.equals(point3.getID()))
-			{
-			    connectionCountPoint3++;
-			}
-		    }
-		}
-	    }
-	    if (connectionCountPoint1 >= 2 &&
-		connectionCountPoint2 >= 2 &&
-		connectionCountPoint3 >= 2)
-	    {
-		newMeshList.add(meshList.get(m));
-	    }
-	}
-	
-	//Set face list to new list that contains core faces only 
-	meshList = newMeshList;
-	
-	//Update extents
-	setExtents();
-    }
+//    //Remove all vertices that do not match one of the items in the 'verticesToKeep' list
+//    //vectorType = X, Y, Z
+//    public void pruneVertices(String vectorType, ArrayList<Float> verticesToKeep)
+//    {
+//	//Form new list of vectors containing the verticesToKeep
+//	ArrayList<Face> newMeshList = new ArrayList<>();
+//	for (Face face : meshList)
+//	{
+//	    Boolean withinBoundsOfWall = true;
+//	    for (Vector vector : face.getVectors())
+//	    {
+//		switch (vectorType)
+//		{
+//		    case Vector.TYPE_X:
+//			if (verticesToKeep.contains(vector.X()) == false)
+//			{
+//			    withinBoundsOfWall = false;
+//			}
+//			break;
+//		    case Vector.TYPE_Y:
+//			if (verticesToKeep.contains(vector.Y()) == false)
+//			{
+//			    withinBoundsOfWall = false;
+//			}
+//			break;
+//		    case Vector.TYPE_Z:
+//			if (verticesToKeep.contains(vector.Z()) == false)
+//			{
+//			    withinBoundsOfWall = false;
+//			}
+//			break;
+//		    default:
+//			break;
+//		}
+//		if (withinBoundsOfWall == false) break;
+//	    }
+//	    if (withinBoundsOfWall) newMeshList.add(face);
+//	}
+//	//Set face list to new list that contains the verticesToKeep
+//	meshList = newMeshList;
+//	//Reset list to reuse
+//	newMeshList = new ArrayList<>();
+//	
+//	System.out.println(this.name+": "+meshList.size());
+//	//Prune isolated faces. Only keep faces that are connected to 2 other unique faces.
+//	for (int m = 0; m < meshList.size(); m++)
+//	{
+//	    Vector point1 = meshList.get(m).Point1();
+//	    Vector point2 = meshList.get(m).Point2();
+//	    Vector point3 = meshList.get(m).Point3();
+//	    int connectionCountPoint1 = 0;
+//	    int connectionCountPoint2 = 0;
+//	    int connectionCountPoint3 = 0;
+//	    for (int i = 0; i < meshList.size(); i++)
+//	    {
+//		//dont compare with self
+//		if (i != m)
+//		{
+//		    Vector[] vectorsToCompare = meshList.get(i).getVectors();
+//		    for (int j = 0; j < vectorsToCompare.length; j++)
+//		    {
+//			//Compare ID inner points with ID of point1/2/3
+//			//Incriment count if match found. 2 or more matches means it is a valid connected point
+//			String ID = vectorsToCompare[j].getID();
+//			if (ID.equals(point1.getID()))
+//			{
+//			    connectionCountPoint1++;
+//			}
+//			if (ID.equals(point2.getID()))
+//			{
+//			    connectionCountPoint2++;
+//			}
+//			if (ID.equals(point3.getID()))
+//			{
+//			    connectionCountPoint3++;
+//			}
+//		    }
+//		}
+//	    }
+//	    if (connectionCountPoint1 >= 2 &&
+//		connectionCountPoint2 >= 2 &&
+//		connectionCountPoint3 >= 2)
+//	    {
+//		newMeshList.add(meshList.get(m));
+//	    }
+//	}
+//	
+//	//Set face list to new list that contains core faces only 
+//	meshList = newMeshList;
+//	
+//	//Update extents
+//	setExtents();
+//    }
     
     public void pruneMaterials(ArrayList<String> materialsToKeep)
     {
