@@ -1,7 +1,6 @@
 package no.myke.parser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * This parser understands the layout of the 3ds file and is
@@ -35,7 +34,7 @@ public class Parser {
     private int readChunk() throws IOException {
         short type = reader.getShort();
         int size = reader.getInt(); // this is probably unsigned but for convenience we use signed int
-        log("Chunk 0x%04x (%d)", type, size);
+        //log("Chunk 0x%04x (%d)", type, size);
         parseChunk(type, size);
         return size;
     }
@@ -87,7 +86,7 @@ public class Parser {
     }
 
     private void skipChunk(int type, int size) throws IOException {
-        log("skipping chunk");
+        //log("skipping chunk");
         move(size - 6); // size includes headers. header is 6 bytes
     }
 
@@ -106,12 +105,12 @@ public class Parser {
 
     private void parseObjectChunk() throws IOException {
         String name = reader.readString();
-        log("Found Object %s", name);
+        log("[Object: %s]", name);
         currentObject = model.newModelObject(name);
     }
 
     private void parseTriangularMesh() throws IOException {
-        log("Found Mesh Header");
+        //log("Found Mesh Header");
     }
 
     private void parseVerticesList() throws IOException {
@@ -141,7 +140,7 @@ public class Parser {
 	    vectors[i] = new Vector(vertices[i*3], vertices[i*3 + 1], vertices[i*3 + 2]);
 	}
 	currentObject.vectors = vectors;
-        log("Found %d vertices", numVertices);
+        //log("Found %d vertices", numVertices);
     }
 
     private void parseFacesDescription() throws IOException {
@@ -165,14 +164,14 @@ public class Parser {
             faces[i*3 + 2] = reader.getShort();
 	    reader.getShort(); // Discard face flag
         }
-        log("Found %d faces", numFaces);
+        //log("Found %d faces", numFaces);
         currentObject.polygons = faces;
     }
     
     private void parseFaceMaterial() throws IOException {
 	String name = reader.readString();
 	short n_faces = reader.getShort();
-	log("%d faces with material %s", n_faces, name);
+	//log("Found %d faces with material %s", n_faces, name);
 	for(short i = 0 ; i < n_faces ; i++)
 	{
 	    currentObject.materialType.put(reader.getShort(), name);
@@ -198,17 +197,17 @@ public class Parser {
             uv[i*2+1] = reader.getFloat();
         }
         currentObject.textureCoordinates = uv;
-        log("Found %d mapping coordinates", numVertices);
+        //log("Found %d mapping coordinates", numVertices);
     }
 
     private void parseMaterialName() throws IOException {
         String materialName = reader.readString();
-        log("Material name %s", materialName);
+        //log("Material name %s", materialName);
     }
 
     private void parseMappingFilename() throws IOException {
         String mappingFile = reader.readString();
-        log("Mapping file %s", mappingFile);
+        //log("Mapping file %s", mappingFile);
     }
 
     private void readVector(float[] v) throws IOException {

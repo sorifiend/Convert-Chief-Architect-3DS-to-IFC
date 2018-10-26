@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import no.myke.parser.Model;
 import no.myke.parser.ModelLoader;
 import no.myke.parser.ParserException;
-import no.myke.parser.Vector;
 /**
  *
  * @author j.simpson
@@ -23,6 +22,12 @@ public class Convert3DSToIFC
     static float scale = 10;
     static int wallThickness = 90; //mm
     static double tolerance = 0.001;
+    
+    static final String wallTag = "Wall";
+    static final String windowTag = "Window";
+    static final String doorTag = "Door";
+    static final String postTag = "Post";
+    static final String roofTag = "Roof";
     
     /**
      * @param args the command line arguments
@@ -40,8 +45,8 @@ public class Convert3DSToIFC
 		String objectName = model.objects.get(o).getName();
 		//System.out.println("Name: "+ objectName);
 		
-		//Create walls
-		if (model.objects.get(o).getName().startsWith("Wall") && (objectName.length() == 4 || objectName.charAt(4) != ' '))
+		//Create walls && (Make sure wall name is either straight or numbered with no space)
+		if (model.objects.get(o).getName().startsWith("Wall") && (objectName.length() == wallTag.length() || objectName.charAt(wallTag.length()) != ' '))
 		{
 		    jobModel.addWall(new Wall(model.objects.get(o)));
 		}
@@ -52,7 +57,17 @@ public class Convert3DSToIFC
 		}
 		if (model.objects.get(o).getName().startsWith("Door"))
 		{
-		    jobModel.addWindow(new Opening(model.objects.get(o)));
+		    jobModel.addDoor(new Opening(model.objects.get(o)));
+		}
+		//create posts && (Make sure post name is either straight or numbered with no space)
+		if (model.objects.get(o).getName().startsWith("Post") && (objectName.length() == postTag.length() || objectName.charAt(postTag.length()) != ' '))
+		{
+		    jobModel.addPost(new Post(model.objects.get(o)));
+		}
+		//create roof
+		if (model.objects.get(o).getName().startsWith("Roof"))
+		{
+		    jobModel.addRoofPlane(new RoofPlane(model.objects.get(o)));
 		}
 	    }
 	}
@@ -61,67 +76,24 @@ public class Convert3DSToIFC
 	    ex.printStackTrace();
 	}
 	
-	//Walls: Remove cladding and linings so that only the raw size will be used in the IFC model.
-	//We expect a wall centre of 90mm wide, so prune anything with a different width.
+	//Walls: Keep required materials only so that the resulting model will be clear of junk.
 	for (Wall wall : jobModel.walls)
-	{
-	    System.out.println(wall.name+": "+wall.getFaceList().size());
-	    
-	    //Prune unneeded faces:
+	{	    
+	    //Prune unneeded materials/faces:
 	    ArrayList materialsToKeep = new ArrayList<String>();
 	    materialsToKeep.add("Zog frame");
-	    wall.pruneMaterials(materialsToKeep);
+	    Utils.pruneMaterials(wall, materialsToKeep);
 	    
-//	    //Find real wall bounds
-//	    //Compare every bound with every other bound to find a match with wall thickness
-//	    String vectorType = Vector.TYPE_NA;
-//	    float side1 = 0, side2 = 0;
-//	    for (int i = 0; i < wall.getVectorList().length; i++)
-//	    {
-//		for (int j = i+1; j < wall.getVectorList().length; j++)
-//		{
-//		    if (CloseEnough(90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()) || CloseEnough(-90, wall.getVectorList()[i].X() - wall.getVectorList()[j].X()))
-//		    {
-//			side1 = wall.getVectorList()[i].X();
-//			side2 = wall.getVectorList()[j].X();
-//			if (side1 > side2)
-//			{
-//			    side1 = wall.getVectorList()[j].X();
-//			    side2 = wall.getVectorList()[i].X();
-//			}
-//			vectorType = Vector.TYPE_X;
-//			break;
-//		    }
-//		    if (CloseEnough(90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()) || CloseEnough(-90, wall.getVectorList()[i].Y() - wall.getVectorList()[j].Y()))
-//		    {
-//			side1 = wall.getVectorList()[i].Y();
-//			side2 = wall.getVectorList()[j].Y();
-//			if (side1 > side2)
-//			{
-//			    side1 = wall.getVectorList()[j].Y();
-//			    side2 = wall.getVectorList()[i].Y();
-//			}
-//			vectorType = Vector.TYPE_Y;
-//			break;
-//		    }
-//		}
-//		if (vectorType.equals(Vector.TYPE_NA) == false) break;
-//	    }
-//	    
-//	    ArrayList<Float> arrayList = new ArrayList<>();
-//	    arrayList.add(side1);
-//	    arrayList.add(side2);
-//	    
-//	    System.out.println(wall.name+": "+vectorType+" "+side1+" "+side2);
-//	    System.out.println(wall.name+": "+wall.getFaceList().size());
-//	    	    
-//	    wall.pruneVertices(vectorType, arrayList);
-	    
-	    System.out.println(wall.name+": "+wall.getFaceList().size());
-	    //System.out.println("  Extents X,Y,Z: "+wall.getMinX()+"|"+wall.getMaxX()+" "+wall.getMinY()+"|"+wall.getMaxY());
 	}
-	DXF_Render_Testing.DXFwrite("output.dxf", jobModel);
-	//Openings: Remove complex geometry, and use simple boxes that will be recognised as openings in software importing the IFC model.
+	//Merge openings that are touching or overlapping
+	
+	//Openings: Remove complex geometry, and create simple boxes that will be used to extrude walls and be recognised as openings in software importing the model.
+	for (Opening door : jobModel.doors)
+	{
+	    Utils.getInnerOpeningSize(door);
+	}
+	
+	//Custom logic to fix incorrect opening sizes
 	
 	//Find and fix collisions
 	
@@ -130,22 +102,10 @@ public class Convert3DSToIFC
 	//Generate IFC header
 	
 	//add components to IFC
+	
+	//Expart data to IFC or other format
+	DXF_Render_Testing.DXFwrite("output.dxf", jobModel);
     }
-
-//    public static ArrayList<Float> findCoreWallThickness(Wall wall)
-//    {
-//	ArrayList<Float> arrayList = new ArrayList<>();
-//	
-//	
-//	
-//	
-//	=;
-//	
-//	
-//	
-//	
-//	return arrayList;
-//    }
     
     //Check if values are equal or within tolerance
     public static boolean CloseEnough(double value1, double value2)

@@ -1,15 +1,13 @@
 package no.myke.parser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 /**
  *
  */
 public class ModelObject {
-    private String name;
+    private final String name;
     public Vector[] vectors;
     public short[] polygons;
-    public HashMap materialType = new HashMap();
+    public java.util.HashMap<Short,String> materialType = new java.util.HashMap(); //Key is the face number as a short, value is the face material as a string
     public float[] textureCoordinates;
 
     public ModelObject(String name) {

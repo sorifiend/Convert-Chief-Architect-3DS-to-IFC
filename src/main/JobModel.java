@@ -18,6 +18,8 @@ public class JobModel
     List<Wall> walls = new ArrayList<>();
     List<Opening> windows = new ArrayList<>();
     List<Opening> doors = new ArrayList<>();
+    List<Post> posts = new ArrayList<>();
+    List<RoofPlane> roofPlanes = new ArrayList<>();
 
     JobModel(String jobName)
     {
@@ -61,6 +63,30 @@ public class JobModel
 	doors.stream().forEach((door) ->
 	{
 	    this.doors.add(door);
+	});
+    }
+    void addPost(Post post)
+    {
+	if (posts.contains(post) == false)
+	    posts.add(post);
+    }
+    void addPost(List<Post> posts)
+    {
+	posts.stream().forEach((post) ->
+	{
+	    this.posts.add(post);
+	});
+    }
+    void addRoofPlane(RoofPlane roofPlane)
+    {
+	if (roofPlanes.contains(roofPlane) == false)
+	    roofPlanes.add(roofPlane);
+    }
+    void addRoofPlane(List<RoofPlane> roofPlanes)
+    {
+	roofPlanes.stream().forEach((roofPlane) ->
+	{
+	    this.roofPlanes.add(roofPlane);
 	});
     }
 }
