@@ -77,6 +77,7 @@ public class Convert3DSToIFC
 	}
 	
 	//Walls: Keep required materials only so that the resulting model will be clear of junk.
+	//We expect a wall centre of 90mm wide, so prune anything with a different width.
 	for (Wall wall : jobModel.walls)
 	{	    
 	    //Prune unneeded materials/faces:
@@ -94,6 +95,7 @@ public class Convert3DSToIFC
 	}
 	
 	//Custom logic to fix incorrect opening sizes
+	//Openings: Remove complex geometry, and create simple boxes that will be used to extrude walls and be recognised as openings in software importing the model.
 	
 	//Find and fix collisions
 	
