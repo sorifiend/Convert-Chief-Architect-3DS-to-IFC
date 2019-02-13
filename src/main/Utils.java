@@ -130,4 +130,19 @@ public class Utils
 //	//Set face list to new list that contains core faces only 
 //	object.setMeshList(newMeshList);
 //    }
+    
+//    public static double distance2D(float x1, float y1, float x2, float y2)
+//    {
+//	return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+//    }
+    public static double distance2D(Vector firstPoint, Vector sectondPoint)
+    {
+	return Math.sqrt((sectondPoint.Y() - firstPoint.Y()) * (sectondPoint.Y() - firstPoint.Y()) + (sectondPoint.X() - firstPoint.X()) * (sectondPoint.X() - firstPoint.X()));
+    }
+    
+    public static boolean isVectorBetween2D(Vector firstPoint, Vector sectondPoint, Vector pointToCheck)
+    {
+	// Return true if point is on the line between.
+	return distance2D(firstPoint, pointToCheck) + distance2D(sectondPoint, pointToCheck) == distance2D(firstPoint, sectondPoint);    
+    }
 }

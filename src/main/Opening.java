@@ -11,7 +11,7 @@ import no.myke.parser.ModelObject;
  *
  * @author j.simpson
  */
-public class Opening extends genericObject
+public class Opening extends CuboidObject
 {
     public Opening(ModelObject model)
     {

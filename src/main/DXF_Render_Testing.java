@@ -65,9 +65,15 @@ public class DXF_Render_Testing
     for (int w = 0; w < model.doors.size(); w++) {
 	DXFfaces(writer, model.doors.get(w).name, model.doors.get(w).getFaceList());
     }
-//    for (int w = 0; w < model.windows.size(); w++) {
-//	DXFfaces(writer, model.windows.get(w).name, model.windows.get(w).getFaceList());
-//    }
+    for (int w = 0; w < model.windows.size(); w++) {
+	DXFfaces(writer, model.windows.get(w).name, model.windows.get(w).getFaceList());
+    }
+    for (int w = 0; w < model.posts.size(); w++) {
+	DXFfaces(writer, model.posts.get(w).name, model.posts.get(w).getFaceList());
+    }
+    for (int w = 0; w < model.roofPlanes.size(); w++) {
+	DXFfaces(writer, model.roofPlanes.get(w).name, model.roofPlanes.get(w).getFaceList());
+    }
   }
     private static void DXFfaces(PrintWriter writer, String layerName, ArrayList<Face> faceList) {
     currentDXFLayer = 0;

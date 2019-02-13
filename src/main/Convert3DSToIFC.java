@@ -46,28 +46,28 @@ public class Convert3DSToIFC
 		//System.out.println("Name: "+ objectName);
 		
 		//Create walls && (Make sure wall name is either straight or numbered with no space)
-		if (model.objects.get(o).getName().startsWith("Wall") && (objectName.length() == wallTag.length() || objectName.charAt(wallTag.length()) != ' '))
+		if (model.objects.get(o).getName().startsWith(wallTag) && (objectName.length() == wallTag.length() || objectName.charAt(wallTag.length()) != ' '))
 		{
 		    jobModel.addWall(new Wall(model.objects.get(o)));
 		}
 		//create openings
-		if (model.objects.get(o).getName().startsWith("Window"))
+		else if (model.objects.get(o).getName().startsWith(windowTag))
 		{
-		    jobModel.addWindow(new Opening(model.objects.get(o)));
+		    //jobModel.addWindow(new Opening(model.objects.get(o)));
 		}
-		if (model.objects.get(o).getName().startsWith("Door"))
+		else if (model.objects.get(o).getName().startsWith(doorTag))
 		{
-		    jobModel.addDoor(new Opening(model.objects.get(o)));
+		    //jobModel.addDoor(new Opening(model.objects.get(o)));
 		}
 		//create posts && (Make sure post name is either straight or numbered with no space)
-		if (model.objects.get(o).getName().startsWith("Post") && (objectName.length() == postTag.length() || objectName.charAt(postTag.length()) != ' '))
+		else if (model.objects.get(o).getName().startsWith(postTag) && (objectName.length() == postTag.length() || objectName.charAt(postTag.length()) != ' '))
 		{
-		    jobModel.addPost(new Post(model.objects.get(o)));
+		    //jobModel.addPost(new Post(model.objects.get(o)));
 		}
 		//create roof
-		if (model.objects.get(o).getName().startsWith("Roof"))
+		else if (model.objects.get(o).getName().startsWith(roofTag))
 		{
-		    jobModel.addRoofPlane(new RoofPlane(model.objects.get(o)));
+		    //jobModel.addRoofPlane(new RoofPlane(model.objects.get(o)));
 		}
 	    }
 	}
@@ -76,23 +76,70 @@ public class Convert3DSToIFC
 	    ex.printStackTrace();
 	}
 	
-	//Walls: Keep required materials only so that the resulting model will be clear of junk.
-	//We expect a wall centre of 90mm wide, so prune anything with a different width.
+	//Keep required materials only so that the resulting model will be clear of junk.
 	for (Wall wall : jobModel.walls)
-	{	    
-	    //Prune unneeded materials/faces:
+	{
+	    //Materials to keep:
 	    ArrayList materialsToKeep = new ArrayList<String>();
 	    materialsToKeep.add("Zog frame");
+	    //Prune unneeded materials/faces:
 	    Utils.pruneMaterials(wall, materialsToKeep);
-	    
 	}
-	//Merge openings that are touching or overlapping
+	for (Opening window : jobModel.windows)
+	{
+	    //Materials to keep:
+	    ArrayList materialsToKeep = new ArrayList<String>();
+	    materialsToKeep.add("Antique");
+	    //Prune unneeded materials/faces:
+	    Utils.pruneMaterials(window, materialsToKeep);
+	}
+	for (RoofPlane roofPlane : jobModel.roofPlanes)
+	{
+	    //Materials to keep:
+	    ArrayList materialsToKeep = new ArrayList<String>();
+	    materialsToKeep.add("Fir Stock Std. +");
+	    //Prune unneeded materials/faces:
+	    Utils.pruneMaterials(roofPlane, materialsToKeep);
+	}
 	
-	//Openings: Remove complex geometry, and create simple boxes that will be used to extrude walls and be recognised as openings in software importing the model.
+	//Openings: Convert object to a footprint and a face shape. These can be used to determin shape and to extrude walls/openings.
 	for (Opening door : jobModel.doors)
 	{
-	    Utils.getInnerOpeningSize(door);
+	    //Utils.getInnerOpeningSize(door);
 	}
+	for (Opening window : jobModel.windows)
+	{
+	    //Utils.getInnerOpeningSize(door);
+	}
+	
+	//Assign doors to walls
+	for (Opening door : jobModel.doors)
+	{
+	    //Compare opening location with wall location
+	    for (Wall wall : jobModel.walls)
+	    {
+		if (wall.contains(door.getVectorList()))
+		{
+		    wall.addOpening(door);
+		    break;
+		}
+	    }
+	}
+	//Assign windows to walls
+	for (Opening window : jobModel.windows)
+	{
+	    //Compare opening location with wall location
+	    for (Wall wall : jobModel.walls)
+	    {
+		if (wall.contains(window.getVectorList()))
+		{
+		    wall.addOpening(window);
+		    break;
+		}
+	    }
+	}
+	
+	//Merge openings that are touching or overlapping
 	
 	//Custom logic to fix incorrect opening sizes
 	//Openings: Remove complex geometry, and create simple boxes that will be used to extrude walls and be recognised as openings in software importing the model.

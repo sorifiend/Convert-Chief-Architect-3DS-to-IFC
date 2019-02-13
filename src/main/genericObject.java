@@ -15,7 +15,7 @@ import no.myke.parser.Vector;
  */
 public class genericObject
 {
-    private float minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
+//    private float minX = 0, maxX = 0, minY = 0, maxY = 0, minZ = 0, maxZ = 0;
     private final Vector[] vectors;
     private ArrayList<Face> meshList = new ArrayList<>();
     String name = "noName";
@@ -38,6 +38,7 @@ public class genericObject
 
 	    meshList.add(new Face(point1, point2, point3, material));
 	}
+	//Find extents using bounding box method
 	setExtents();
     }
     
@@ -156,52 +157,52 @@ public class genericObject
     
     private void setExtents()
     {
-	//Find extents
-	for (int m = 0; m < meshList.size(); m++)
-	{   
-	    
-	    Face value = meshList.get(m);
-	    if (m == 0)
-	    {
-		minX = value.Point1().X();
-		maxX = value.Point1().X();
-		minY = value.Point1().Y();
-		maxY = value.Point1().Y();
-		minZ = value.Point1().Z();
-		maxZ = value.Point1().Z();
-	    }
-	    else
-	    {
-		if (value.Point1().X() < minX) minX = value.Point1().X();
-		else if (value.Point1().X() > maxX) maxX = value.Point1().X();
-		if (value.Point2().X() < minX) minX = value.Point2().X();
-		else if (value.Point2().X() > maxX) maxX = value.Point2().X();
-		if (value.Point3().X() < minX) minX = value.Point3().X();
-		else if (value.Point3().X() > maxX) maxX = value.Point3().X();
-
-		if (value.Point1().Y() < minY) minY = value.Point1().Y();
-		else if (value.Point1().Y() > maxY) maxY = value.Point1().Y();
-		if (value.Point2().Y() < minY) minY = value.Point2().Y();
-		else if (value.Point2().Y() > maxY) maxY = value.Point2().Y();
-		if (value.Point3().Y() < minY) minY = value.Point3().Y();
-		else if (value.Point3().Y() > maxY) maxY = value.Point3().Y();		
-
-		if (value.Point1().Z() < minZ) minZ = value.Point1().Z();
-		else if (value.Point1().Z() > maxZ) maxZ = value.Point1().Z();
-		if (value.Point2().Z() < minZ) minZ = value.Point2().Z();
-		else if (value.Point2().Z() > maxZ) maxZ = value.Point2().Z();
-		if (value.Point3().Z() < minZ) minZ = value.Point3().Z();
-		else if (value.Point3().Z() > maxZ) maxZ = value.Point3().Z();
-	    }
-	}
+//	//Find extents
+//	for (int m = 0; m < meshList.size(); m++)
+//	{   
+//	    
+//	    Face value = meshList.get(m);
+//	    if (m == 0)
+//	    {
+//		minX = value.Point1().X();
+//		maxX = value.Point1().X();
+//		minY = value.Point1().Y();
+//		maxY = value.Point1().Y();
+//		minZ = value.Point1().Z();
+//		maxZ = value.Point1().Z();
+//	    }
+//	    else
+//	    {
+//		if (value.Point1().X() < minX) minX = value.Point1().X();
+//		else if (value.Point1().X() > maxX) maxX = value.Point1().X();
+//		if (value.Point2().X() < minX) minX = value.Point2().X();
+//		else if (value.Point2().X() > maxX) maxX = value.Point2().X();
+//		if (value.Point3().X() < minX) minX = value.Point3().X();
+//		else if (value.Point3().X() > maxX) maxX = value.Point3().X();
+//
+//		if (value.Point1().Y() < minY) minY = value.Point1().Y();
+//		else if (value.Point1().Y() > maxY) maxY = value.Point1().Y();
+//		if (value.Point2().Y() < minY) minY = value.Point2().Y();
+//		else if (value.Point2().Y() > maxY) maxY = value.Point2().Y();
+//		if (value.Point3().Y() < minY) minY = value.Point3().Y();
+//		else if (value.Point3().Y() > maxY) maxY = value.Point3().Y();		
+//
+//		if (value.Point1().Z() < minZ) minZ = value.Point1().Z();
+//		else if (value.Point1().Z() > maxZ) maxZ = value.Point1().Z();
+//		if (value.Point2().Z() < minZ) minZ = value.Point2().Z();
+//		else if (value.Point2().Z() > maxZ) maxZ = value.Point2().Z();
+//		if (value.Point3().Z() < minZ) minZ = value.Point3().Z();
+//		else if (value.Point3().Z() > maxZ) maxZ = value.Point3().Z();
+//	    }
+//	}
     }
 
-    public float getMinX(){return minX;}
-    public float getMaxX(){return maxX;}
-    public float getMinY(){return minY;}
-    public float getMaxY(){return maxY;}
-    public float getMinZ(){return minZ;}
-    public float getMaxZ(){return maxZ;}
+//    public float getMinX(){return minX;}
+//    public float getMaxX(){return maxX;}
+//    public float getMinY(){return minY;}
+//    public float getMaxY(){return maxY;}
+//    public float getMinZ(){return minZ;}
+//    public float getMaxZ(){return maxZ;}
     
     public Vector[] getVectorList(){return vectors;}
     public ArrayList<Face> getFaceList(){return meshList;}
@@ -210,5 +211,10 @@ public class genericObject
 	this.meshList = meshList;
 	//Update extents
 	setExtents();
+    }
+
+    boolean contains(Vector[] vectorList)
+    {
+	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -11,7 +11,7 @@ import no.myke.parser.ModelObject;
  *
  * @author j.simpson
  */
-public class Post extends genericObject
+public class Post extends CuboidObject
 {
     public Post(ModelObject model)
     {
