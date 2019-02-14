@@ -14,20 +14,20 @@ import no.myke.parser.Vector;
  */
 public class Utils
 {
-    public static void pruneMaterials(genericObject object, ArrayList<String> materialsToKeep)
-    {
-	//Form new list of only the materials to keep
-	ArrayList<Face> newMeshList = new ArrayList<>();
-	for (Face face : object.getFaceList())
-	{
-	    if(materialsToKeep.contains(face.Material()))
-	    {
-		newMeshList.add(face);
-	    }
-	}
-	//Set face list to new list that contains core faces only 
-	object.setMeshList(newMeshList);
-    }
+//    public static void pruneMaterials(genericObject object, ArrayList<String> materialsToKeep)
+//    {
+//	//Form new list of only the materials to keep
+//	ArrayList<Face> newMeshList = new ArrayList<>();
+//	for (Face face : object.getFaceList())
+//	{
+//	    if(materialsToKeep.contains(face.Material()))
+//	    {
+//		newMeshList.add(face);
+//	    }
+//	}
+//	//Set face list to new list that contains core faces only 
+//	object.setMeshList(newMeshList);
+//    }
     
     //Find the inner dimensions of an opening
     public static void getInnerOpeningSize(genericObject object)
@@ -143,6 +143,9 @@ public class Utils
     public static boolean isVectorBetween2D(Vector firstPoint, Vector sectondPoint, Vector pointToCheck)
     {
 	// Return true if point is on the line between.
-	return distance2D(firstPoint, pointToCheck) + distance2D(sectondPoint, pointToCheck) == distance2D(firstPoint, sectondPoint);    
+	double distanceBetweenPoints = distance2D(firstPoint, sectondPoint);
+	double distanceToPoint = distance2D(firstPoint, pointToCheck) + distance2D(sectondPoint, pointToCheck);
+	
+	return Convert3DSToIFC.CloseEnough(distanceBetweenPoints, distanceToPoint);
     }
 }

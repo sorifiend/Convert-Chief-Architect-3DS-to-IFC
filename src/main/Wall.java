@@ -16,10 +16,9 @@ public class Wall extends CuboidObject
 {    
     private ArrayList<Opening> openings = new ArrayList<>();
     
-    public Wall(ModelObject model)
+    Wall(ModelObject model, ArrayList<String> materialsToKeep)
     {
-	//Initialize using constructor in extended class genericObject
-	super(model);
+	super(model, materialsToKeep);
     }
 
     public void addOpening(Opening door)

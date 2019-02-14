@@ -6,6 +6,7 @@
 
 package main;
 
+import java.util.ArrayList;
 import no.myke.parser.ModelObject;
 /**
  *
@@ -13,9 +14,8 @@ import no.myke.parser.ModelObject;
  */
 public class Opening extends CuboidObject
 {
-    public Opening(ModelObject model)
+    Opening(ModelObject model, ArrayList<String> materialsToKeep)
     {
-	//Initialize using constructor in extended class genericObject
-	super(model);
+	super(model, materialsToKeep);
     }
 }

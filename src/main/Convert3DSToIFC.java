@@ -48,26 +48,38 @@ public class Convert3DSToIFC
 		//Create walls && (Make sure wall name is either straight or numbered with no space)
 		if (model.objects.get(o).getName().startsWith(wallTag) && (objectName.length() == wallTag.length() || objectName.charAt(wallTag.length()) != ' '))
 		{
-		    jobModel.addWall(new Wall(model.objects.get(o)));
+		    //Materials to keep:
+		    ArrayList materialsToKeep = new ArrayList<String>();
+		    materialsToKeep.add("Zog frame");
+		    //Create wall and prune unneeded materials/faces:
+		    jobModel.addWall(new Wall(model.objects.get(o), materialsToKeep));
 		}
 		//create openings
 		else if (model.objects.get(o).getName().startsWith(windowTag))
 		{
-		    //jobModel.addWindow(new Opening(model.objects.get(o)));
+		    //Materials to keep:
+		    ArrayList materialsToKeep = new ArrayList<String>();
+		    materialsToKeep.add("Antique");
+		    //Create wall and prune unneeded materials/faces:
+		    //jobModel.addWindow(new Opening(model.objects.get(o), materialsToKeep));
 		}
 		else if (model.objects.get(o).getName().startsWith(doorTag))
 		{
-		    //jobModel.addDoor(new Opening(model.objects.get(o)));
+		    //jobModel.addDoor(new Opening(model.objects.get(o), materialsToKeep));
 		}
 		//create posts && (Make sure post name is either straight or numbered with no space)
 		else if (model.objects.get(o).getName().startsWith(postTag) && (objectName.length() == postTag.length() || objectName.charAt(postTag.length()) != ' '))
 		{
-		    //jobModel.addPost(new Post(model.objects.get(o)));
+		    //jobModel.addPost(new Post(model.objects.get(o), materialsToKeep));
 		}
 		//create roof
 		else if (model.objects.get(o).getName().startsWith(roofTag))
 		{
-		    //jobModel.addRoofPlane(new RoofPlane(model.objects.get(o)));
+		    //Materials to keep:
+		    ArrayList materialsToKeep = new ArrayList<String>();
+		    materialsToKeep.add("Fir Stock Std. +");
+		    //Create wall and prune unneeded materials/faces:
+		    //jobModel.addRoofPlane(new RoofPlane(model.objects.get(o), materialsToKeep));
 		}
 	    }
 	}
@@ -76,53 +88,17 @@ public class Convert3DSToIFC
 	    ex.printStackTrace();
 	}
 	
-	//Keep required materials only so that the resulting model will be clear of junk.
-	for (Wall wall : jobModel.walls)
-	{
-	    //Materials to keep:
-	    ArrayList materialsToKeep = new ArrayList<String>();
-	    materialsToKeep.add("Zog frame");
-	    //Prune unneeded materials/faces:
-	    Utils.pruneMaterials(wall, materialsToKeep);
-	}
-	for (Opening window : jobModel.windows)
-	{
-	    //Materials to keep:
-	    ArrayList materialsToKeep = new ArrayList<String>();
-	    materialsToKeep.add("Antique");
-	    //Prune unneeded materials/faces:
-	    Utils.pruneMaterials(window, materialsToKeep);
-	}
-	for (RoofPlane roofPlane : jobModel.roofPlanes)
-	{
-	    //Materials to keep:
-	    ArrayList materialsToKeep = new ArrayList<String>();
-	    materialsToKeep.add("Fir Stock Std. +");
-	    //Prune unneeded materials/faces:
-	    Utils.pruneMaterials(roofPlane, materialsToKeep);
-	}
-	
-	//Openings: Convert object to a footprint and a face shape. These can be used to determin shape and to extrude walls/openings.
-	for (Opening door : jobModel.doors)
-	{
-	    //Utils.getInnerOpeningSize(door);
-	}
-	for (Opening window : jobModel.windows)
-	{
-	    //Utils.getInnerOpeningSize(door);
-	}
-	
 	//Assign doors to walls
 	for (Opening door : jobModel.doors)
 	{
 	    //Compare opening location with wall location
 	    for (Wall wall : jobModel.walls)
 	    {
-		if (wall.contains(door.getVectorList()))
-		{
-		    wall.addOpening(door);
-		    break;
-		}
+//		if (wall.contains(door.getVectorList()))
+//		{
+//		    wall.addOpening(door);
+//		    break;
+//		}
 	    }
 	}
 	//Assign windows to walls
@@ -131,11 +107,11 @@ public class Convert3DSToIFC
 	    //Compare opening location with wall location
 	    for (Wall wall : jobModel.walls)
 	    {
-		if (wall.contains(window.getVectorList()))
-		{
-		    wall.addOpening(window);
-		    break;
-		}
+//		if (wall.contains(window.getVectorList()))
+//		{
+//		    wall.addOpening(window);
+//		    break;
+//		}
 	    }
 	}
 	

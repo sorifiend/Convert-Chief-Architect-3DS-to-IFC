@@ -15,7 +15,7 @@ public class Vector
 //    public static final String TYPE_X = "X", TYPE_Y = "Y", TYPE_Z = "Z", TYPE_NA = "NA";
     float x, y, z;
     
-    Vector (float x, float y, float z)
+    public Vector (float x, float y, float z)
     {
 	this.x = x;
 	this.y = y;

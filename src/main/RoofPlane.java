@@ -6,6 +6,7 @@
 
 package main;
 
+import java.util.ArrayList;
 import no.myke.parser.ModelObject;
 /**
  *
@@ -13,9 +14,9 @@ import no.myke.parser.ModelObject;
  */
 public class RoofPlane extends genericObject
 {
-    public RoofPlane(ModelObject model)
+    public RoofPlane(ModelObject model, ArrayList<String> materialsToKeep)
     {
 	//Initialize using constructor in extended class genericObject
-	super(model);
+	super(model, materialsToKeep);
     }
 }
