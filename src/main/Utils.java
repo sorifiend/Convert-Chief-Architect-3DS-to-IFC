@@ -130,6 +130,11 @@ public class Utils
 //	//Set face list to new list that contains core faces only 
 //	object.setMeshList(newMeshList);
 //    }
+        //Check if values are equal or within tolerance
+    public static boolean CloseEnough(double value1, double value2)
+    {
+	return Math.abs(value1 - value2) <= Convert3DSToIFC.tolerance;
+    }
     
 //    public static double distance2D(float x1, float y1, float x2, float y2)
 //    {
@@ -146,6 +151,6 @@ public class Utils
 	double distanceBetweenPoints = distance2D(firstPoint, sectondPoint);
 	double distanceToPoint = distance2D(firstPoint, pointToCheck) + distance2D(sectondPoint, pointToCheck);
 	
-	return Convert3DSToIFC.CloseEnough(distanceBetweenPoints, distanceToPoint);
+	return CloseEnough(distanceBetweenPoints, distanceToPoint);
     }
 }

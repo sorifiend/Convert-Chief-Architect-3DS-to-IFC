@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import no.myke.parser.Model;
 import no.myke.parser.ModelLoader;
 import no.myke.parser.ParserException;
+import no.myke.parser.Vector;
 /**
  *
  * @author j.simpson
@@ -130,11 +131,5 @@ public class Convert3DSToIFC
 	
 	//Expart data to IFC or other format
 	DXF_Render_Testing.DXFwrite("output.dxf", jobModel);
-    }
-    
-    //Check if values are equal or within tolerance
-    public static boolean CloseEnough(double value1, double value2)
-    {
-	return Math.abs(value1 - value2) <= tolerance;
     }
 }

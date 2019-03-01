@@ -36,8 +36,8 @@ public class Vector
 	return z;
     }
     
-//    public String getID()
-//    {
-//	return x+"|"+y+"|"+z;
-//    }
+    public String getID()
+    {
+	return x+"|"+y+"|"+z;
+    }
 }
