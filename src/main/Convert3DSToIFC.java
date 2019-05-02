@@ -125,11 +125,10 @@ public class Convert3DSToIFC
 	
 	//Custom logic to check for drafting errors and common mistakes
 	
-	//Generate IFC header
-	
-	//add components to IFC
+	//Create IFC file
+	new CreateIFC(file.getAbsolutePath(), "test", jobModel);
 	
 	//Expart data to IFC or other format
-	DXF_Render_Testing.DXFwrite("output.dxf", jobModel);
+	//DXF_Render_Testing.DXFwrite("output.dxf", jobModel);
     }
 }

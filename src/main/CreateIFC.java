@@ -36,7 +36,7 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	    + "DATA;";
     final String Save4_projectDetails = ""
 	    + "#1=IFCPERSON($,'James','Simpson',$,$,$,$,$);\n"
-	    + "#2=IFCORGANIZATION($, 'RCDC', 'RCDC Ltd.', $, $);\n"
+	    + "#2=IFCORGANIZATION($,'RCDC','RCDC Ltd.',$,$);\n"
 	    + "#3=IFCPERSONANDORGANIZATION(#1,#2,$);\n"
 	    + "#4=IFCAPPLICATION(#2,'V1.0','3DS Converter','Custom_App');\n"
 	    + "#5=IFCOWNERHISTORY(#3,#4,.READWRITE.,.NOCHANGE.,$,$,$,1000000000);\n"
@@ -94,7 +94,7 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	    + "#46=IFCSITE('" + GetUniqueID() + "',#5,'',$,$,#45,$,$,.ELEMENT.,$,$,$,$,$);\n"
 	    + "#47=IFCLOCALPLACEMENT(#45,#11);\n"
 	    + "#48=IFCPOSTALADDRESS($,$,$,$,('unknown'),$,'unknown',$,'unknown','unknown');\n"
-	    + "#49=IFCBUILDING('" + GetUniqueID() + "',#5,'',$,$,#47,$,$,.ELEMENT.,$,$,#48);"
+	    + "#49=IFCBUILDING('" + GetUniqueID() + "',#5,'',$,$,#47,$,$,.ELEMENT.,$,$,#48);\n"
 	    + "#50=IFCLOCALPLACEMENT(#47,#11);\n"
 	    + "#51=IFCBUILDINGSTOREY('" + GetUniqueID() + "',#5,'Ground_Floor',$,$,#50,$,$,.ELEMENT.,0.);\n"
 	    + "#52=IFCPROPERTYSINGLEVALUE('Reference','',IFCIDENTIFIER('Z-INB-GIB-24'),$);\n"
@@ -122,14 +122,15 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
     //Use this line count to append the start of every line with '#x=' where x is the line count.
     //Do this for all lines except the header
     //Example #1=IFCPERSON...., #2=IFCORGANIZATION...., etc
-    //Start 55 so that no conflice occurs wit the above template, and teh next line will be '#56='
+    //Start 56 so that no conflict occurs wit the above template, and the next line will be #56
     int lineCount = 55;
     String GetLineCount()
     {
-	return "#"+(lineCount++);
+	lineCount++;
+	return "#"+(lineCount);
     }
     
-    CreateIFC(String absolutePathOf3DS, String jobName, JobModel jobModel)
+    public CreateIFC(String absolutePathOf3DS, String jobName, JobModel jobModel)
     {
 	//set job name to be used below
 	Save2_fileName = jobName;
@@ -137,9 +138,7 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	//Create array of lines, this will be used when writing to file
 	List<String> lines = new ArrayList<>();
 	//Add header
-	lines.add(Save1_header);
-	lines.add(Save2_fileName);
-	lines.add(Save3_header);
+	lines.add(Save1_header + Save2_fileName + ".ifc" + Save3_header);
 	lines.add(Save4_projectDetails);
 	lines.add(Save5_buildingSetup);
 	
@@ -151,6 +150,7 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	for (int i = 0; i < jobModel.walls.size(); i++)
 	{
 	    Wall wall = jobModel.walls.get(i);
+	    System.out.println("Wall "+wall.name);
 	    //Add wall
 	    
 	    //create referance values for start of wall
@@ -176,33 +176,35 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	    lines.add(ID_IFCPRODUCTDEFINITIONSHAPE_1 + "=IFCPRODUCTDEFINITIONSHAPE($,$,("+ID_IFCSHAPEREPRESENTATION_1+"));");
 	    //The next five lines define the wall object placement
 	    //Start location of the wall (x,y,z) from the left middle point
-	    lines.add(ID_IFCCARTESIANPOINT_3 + "=IFCCARTESIANPOINT(("+wall.getStartX()+","+wall.getStartY()+","+wall.getStartZ()+"));");
+	    lines.add(ID_IFCCARTESIANPOINT_3 + "=IFCCARTESIANPOINT(("+wall.footPrint[0].X()+","+wall.footPrint[0].Y()+","+wall.footPrint[0].Z()+"));");
 	    //This designates the wall as Z axis for extruding, and extruding is the only time that '0.,0.,1.' should be used
 	    lines.add(ID_IFCDIRECTION_1 + "=IFCDIRECTION((0.,0.,1.));");
 	    //Horizontal/X = 1.,0.,0. and //VerticleY= 0.,1.,0. and //Angle example= 0.63,0.77,0.
-	    lines.add(ID_IFCDIRECTION_2 + "=IFCDIRECTION(("+wall.getDirectionX()+","+wall.getDirectionY()+",0.));");
+	    //The values are the Sine of the angle SIN(angle), for example 45 degrees is: 0.70710678118654752440084436210485
+	    lines.add(ID_IFCDIRECTION_2 + "=IFCDIRECTION(("+wall.getAngleX()+","+wall.getAngleY()+",0.));");
 	    lines.add(ID_IFCAXIS2PLACEMENT3D_1 + "=IFCAXIS2PLACEMENT3D("+ID_IFCCARTESIANPOINT_3+","+ID_IFCDIRECTION_1+","+ID_IFCDIRECTION_2+");");
 	    lines.add(ID_IFCLOCALPLACEMENT_1 + "=IFCLOCALPLACEMENT("+IFCLOCALPLACEMENT+","+ID_IFCAXIS2PLACEMENT3D_1+");");
 	    //Create wall object
-	    lines.add(ID_IFCWALL + "=IFCWALL('UUIDreplace',#5,'Z-INB-GIB-24',$,'WALLINT',"+ID_IFCLOCALPLACEMENT_1+","+ID_IFCPRODUCTDEFINITIONSHAPE_1+",'"+wall.name+"');");
+	    lines.add(ID_IFCWALL + "=IFCWALL('" + GetUniqueID() + "',#5,'Z-INB-GIB-24',$,'WALLINT',"+ID_IFCLOCALPLACEMENT_1+","+ID_IFCPRODUCTDEFINITIONSHAPE_1+",'"+wall.name+"');");
 	    lines.add(ID_IFCPROPERTYSET + "=IFCPROPERTYSET('" + GetUniqueID() + "',#5,'Pset_WallCommon',$,("+IFCPROPERTYSET+"));");
-	    lines.add(ID_IFCRELDEFINESBYPROPERTIES + "=IFCRELDEFINESBYPROPERTIES('UUIDreplace',#5,$,$,("+ID_IFCWALL+"),"+ID_IFCPROPERTYSET+");");
+	    lines.add(ID_IFCRELDEFINESBYPROPERTIES + "=IFCRELDEFINESBYPROPERTIES('" + GetUniqueID() + "',#5,$,$,("+ID_IFCWALL+"),"+ID_IFCPROPERTYSET+");");
 	    //Add wall to lists used to identify walls at end of job
 	    LIST_IFCWALL.add(ID_IFCWALL);
 	    
 	    //create referance values for wall shape
-	    lines.add(CreatePolyLine(wall, wall.getFaceShape()));
-	    //Get ID of last line returned from CreatePolyLine
+	    lines.add(createPolyLine(wall.getFaceShape()));
 	    String ID_IFCCOMPOSITECURVE_WALL = "#"+lineCount;
 
 	    //Create wall face with openings if they exist
 	    if (wall.getWindows().size() > 0)
 	    {
+		//Get ID of last line returned from CreatePolyLine
+		
 		String openingValues = "";
 		for (int w = 0; w < wall.getWindows().size(); w++)
 		{
 		    //create referance values for wall shape
-		    lines.add(CreatePolyLine(wall, wall.getWindows().get(w).getFaceShape()));
+		    lines.add(createPolyLine(wall.getWindows().get(w).getFaceShape()));
 		    //Get ID of last line returned from CreatePolyLine
 		    if (openingValues.length() == 0)
 		    {
@@ -278,10 +280,17 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	String ID_IFCRELASSOCIATESMATERIAL = GetLineCount();
 	String ID_IFCWALLTYPE = GetLineCount();
 	String ID_IFCRELDEFINESBYTYPE = GetLineCount();
-	String ID_IFCRELCONTAINEDINSPATIALSTRUCTURE = GetLineCount();
 	
 	lines.add(ID_IFCMATERIAL + "=IFCMATERIAL('SFRAME-90');");
-	lines.add(ID_IFCRELASSOCIATESMATERIAL + "=IFCRELASSOCIATESMATERIAL('"+GetUniqueID()+"',#5,$,$,(#105,#137,#169,#209),"+ID_IFCMATERIAL+");");
+	String walls = "";
+	for (int i = 0; i < LIST_IFCWALL.size(); i++)
+	{
+	    if(i == 0)
+		walls = LIST_IFCBUILDINGELEMENTPART.get(i);
+	    else
+		walls +=","+LIST_IFCBUILDINGELEMENTPART.get(i);
+	}
+	lines.add(ID_IFCRELASSOCIATESMATERIAL + "=IFCRELASSOCIATESMATERIAL('"+GetUniqueID()+"',#5,$,$,("+walls+"),"+ID_IFCMATERIAL+");");
 	lines.add(ID_IFCWALLTYPE + "=IFCWALLTYPE('"+GetUniqueID()+"',#5,'WALLINT','Interior Wall',$,$,$,$,$,.STANDARD.);");
 	
 	String wallList = "";
@@ -302,20 +311,21 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	lines.add(GetLineCount() + "=IFCRELAGGREGATES('" + GetUniqueID() + "',#5,'ProjectContainer','ProjectContainer for Sites',#44,(#46));");
 	lines.add(GetLineCount() + "=IFCRELAGGREGATES('" + GetUniqueID() + "',#5,'SiteContainer','SiteContainer For Buildings',#46,(#49));");
 	lines.add(GetLineCount() + "=IFCRELAGGREGATES('" + GetUniqueID() + "',#5,'BuildingContainer','BuildingContainer for BuildigStories',#49,(#51));");
-
-	lines.add(ID_IFCMATERIAL + "=IFCRELCONTAINEDINSPATIALSTRUCTURE('\"+GetUniqueID()+\"',#5,$,$,("+wallList+"),"+IFCBUILDINGSTOREY+");");
+	String ID_IFCRELCONTAINEDINSPATIALSTRUCTURE = GetLineCount();
+	lines.add(ID_IFCRELCONTAINEDINSPATIALSTRUCTURE + "=IFCRELCONTAINEDINSPATIALSTRUCTURE('"+GetUniqueID()+"',#5,$,$,("+wallList+"),"+IFCBUILDINGSTOREY+");");
 	
 	for (int i = 0; i < LIST_IFCWALL.size(); i++)
 	{
-	    lines.add(GetLineCount() + "=IFCRELAGGREGATES('\"+GetUniqueID()+\"',#5,$,$,"+LIST_IFCWALL.get(i)+",("+LIST_IFCBUILDINGELEMENTPART.get(i)+"));");
+	    lines.add(GetLineCount() + "=IFCRELAGGREGATES('"+GetUniqueID()+"',#5,$,$,"+LIST_IFCWALL.get(i)+",("+LIST_IFCBUILDINGELEMENTPART.get(i)+"));");
 	}
 	
 	//end of file
 	lines.add(Save6_endOfFile);
-		
+			
 	//Write lines to file
 	String newFilePath = absolutePathOf3DS.substring(0, absolutePathOf3DS.lastIndexOf(File.pathSeparator)+1) + Save2_fileName + ".ifc";
 	Path file = Paths.get(newFilePath);
+	System.out.println("Saving IFC to: "+ newFilePath);
 	try
 	{
 	    Files.write(file, lines, Charset.forName("UTF-8"));
@@ -326,10 +336,12 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	}
     }
     
-    private String createPolyLine(Wall wall, List<Vector> faceShape)
+    private String createPolyLine(List<Vector> faceShape)
     {
+	//Vector startOfWall = new Vector(0, 0, 0);
 	List<String> lines = new ArrayList<>();
 	String polyLineFacePoints = "";
+	String firstPoint = "";
 	for (int f = 0; f < faceShape.size(); f++)
 	{
 	    //get line ID and add it to list
@@ -337,14 +349,21 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	    if (polyLineFacePoints.length() == 0)
 	    {
 		polyLineFacePoints = lineID;
+		firstPoint = lineID;
 	    }
 	    else
 	    {
 		polyLineFacePoints = polyLineFacePoints + "," + lineID;
 	    }
+	    
+	    double distangeFromStart  = Utils.distance2D(faceShape.get(0), new Vector(faceShape.get(f).X(), faceShape.get(f).Y(), 0));
+	    =;
 	    //Define front face of wall by X,Y points
-	    lines.add(lineID + "=IFCCARTESIANPOINT((" + faceShape.get(f).X() + "," + faceShape.get(f).Y() + "));");
+	    //lines.add(lineID + "=IFCCARTESIANPOINT((" + faceShape.get(f).X() + "," + faceShape.get(f).Z() + "));");
+	    lines.add(lineID + "=IFCCARTESIANPOINT((" + distangeFromStart + "," + faceShape.get(f).Z() + "));");
+	    System.out.println("DIS: "+distangeFromStart);
 	}
+	polyLineFacePoints = polyLineFacePoints + "," + firstPoint;
 
 	//create referance values for wall shape
 	String ID_IFCPOLYLINE_2 = GetLineCount();
@@ -360,7 +379,10 @@ public final class CreateIFC //Vertex BD needs IFC2x3 to work correctly
 	for (int i = 0; i < lines.size(); i++)
 	{
 	    //add all lines together and add \n to end
-	    returnValue += lines.get(i) + "\n";
+	    if (i < lines.size()-1)
+		returnValue += lines.get(i) + "\n";
+	    else
+		returnValue += lines.get(i);
 	}
 	return returnValue;
     }

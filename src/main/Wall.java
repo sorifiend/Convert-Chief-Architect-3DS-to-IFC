@@ -29,4 +29,9 @@ public class Wall extends CuboidObject
     }
     public ArrayList<Opening> getOpenings(){return openings;}
     public Double getThickness(){return thickness;}
+
+    ArrayList<Opening> getWindows()
+    {
+	return openings;
+    }
 }
